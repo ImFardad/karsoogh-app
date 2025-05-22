@@ -11,22 +11,17 @@ async function getUsers() {
 module.exports = {
   /**
    * شبیه Sequelize.findOne
-   * پذیرش پارامتری مثل { where: { phone, email } }
-   * فقط یکی از شروط phone یا email یا هردو ممکن است باشد.
    */
   findOne: async ({ where }) => {
     const users = await getUsers();
-    // اگر both phone و email وجود داشته باشند، OR اعمال می‌کنیم
     if (where.phone && where.email) {
       return users.find(
         (u) => u.phone === where.phone || u.email === where.email
       );
     }
-    // فقط phone
     if (where.phone) {
       return users.find((u) => u.phone === where.phone);
     }
-    // فقط email
     if (where.email) {
       return users.find((u) => u.email === where.email);
     }
@@ -35,7 +30,6 @@ module.exports = {
 
   /**
    * شبیه Sequelize.findByPk
-   * یافتن کاربر با شناسهٔ عددی (id)
    */
   findByPk: async (id) => {
     const users = await getUsers();
@@ -44,16 +38,26 @@ module.exports = {
 
   /**
    * شبیه Sequelize.create
-   * data شامل کلیدها و مقادیر فیلدهای مدل است (مثلاً firstName, lastName و ...)
+   * اضافه کردن فیلد active با مقدار پیش‌فرض false در صورت عدم وجود data.active
    */
   create: async (data) => {
     const users = await getUsers();
-    // تعیین شناسهٔ جدید (incremental)
     const existingIds = users.map((u) => u.id);
     const newId = existingIds.length ? Math.max(...existingIds) + 1 : 1;
 
-    // شیٔ کاربر جدید با id تولیدشده
-    const newUser = { id: newId, ...data, createdAt: Date.now() };
+    // active به‌صورت پیش‌فرض false است مگر اینکه صراحتاً data.active=true باشد
+    const newUser = {
+      id: newId,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      phone: data.phone,
+      email: data.email,
+      passwordHash: data.passwordHash,
+      isVerified: data.isVerified,
+      friendCode: data.friendCode,
+      active: data.active === true, // فیلد جدید
+      createdAt: Date.now()
+    };
 
     users.push(newUser);
     db.data.users = users;
@@ -63,43 +67,34 @@ module.exports = {
   },
 
   /**
-   * شبیه Sequelize.destroy برای پاک کردن کاربر بر اساس شرط
-   * پارامتر where می‌تواند شامل مثلاً { id } یا سایر فیلدها باشد.
-   * اما در سیستم احراز هویت معمولاً فقط findOne، create و findByPk نیاز داریم.
+   * شبیه Sequelize.destroy (در صورت نیاز)
    */
   destroy: async ({ where }) => {
     let users = await getUsers();
     if (where.id !== undefined) {
       users = users.filter((u) => u.id !== where.id);
     } else {
-      // فیلتر بر اساس سایر فیلدها (مثلاً phone یا email)، اگر لازم شد
       Object.keys(where).forEach((key) => {
         users = users.filter((u) => u[key] !== where[key]);
       });
     }
     db.data.users = users;
     await db.write();
-    return;
   },
 
   /**
    * شبیه Sequelize.update
-   * data: مقادیری که می‌خواهیم به‌روزرسانی شوند
-   * where: شرط برای یافتن رکورد(های) مورد نظر
-   * این متد تنها نمونه‌ای ساده است که برای Update پروفایل کاربرد دارد.
    */
   update: async (data, { where }) => {
     const users = await getUsers();
     let updated = null;
     for (let i = 0; i < users.length; i++) {
       const u = users[i];
-      // شرط ساده برای id یا سایر فیلدهای where
       let matches = true;
       Object.keys(where).forEach((key) => {
         if (u[key] !== where[key]) matches = false;
       });
       if (matches) {
-        // اعمال تغییرات
         const newUser = { ...u, ...data };
         users[i] = newUser;
         updated = newUser;

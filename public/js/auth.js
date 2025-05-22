@@ -87,7 +87,14 @@ if (signupForm) {
       spinner: verifySpin
     });
 
-    if (data.status === 'verified') {
+    if (data.status === 'pendingActivation') {
+      // اگر حساب غیرفعال است، کاربر را به /login هدایت می‌کنیم
+      // و شماره و رمز عبور را در Query String URL می‌فرستیم
+      const phone = encodeURIComponent(data.phone);
+      const password = encodeURIComponent(data.password);
+      window.location.href = `/login?phone=${phone}&password=${password}`;
+    } else if (data.status === 'verified') {
+      // **فقط اگر در آینده خواستید حساب خودکار فعال شود، این مسیر برقرار بماند**
       window.location.href = '/';
     } else {
       errVer.textContent = data.error || 'Verification failed';
@@ -101,6 +108,17 @@ if (loginForm) {
   const loginBtn  = document.getElementById('login-btn');
   const loginSpin = document.getElementById('login-spinner');
   const errLogin  = document.getElementById('login-error');
+
+  // ‟Prefill” fields from query parameters if وجود داشته باشند
+  const urlParams = new URLSearchParams(window.location.search);
+  const prefPhone = urlParams.get('phone');
+  const prefPass  = urlParams.get('password');
+  if (prefPhone) {
+    document.querySelector('input[name="phone"]').value = prefPhone;
+  }
+  if (prefPass) {
+    document.querySelector('input[name="password"]').value = prefPass;
+  }
 
   loginBtn.addEventListener('click', async () => {
     errLogin.textContent = '';

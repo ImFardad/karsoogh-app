@@ -6,10 +6,11 @@
       "lastName": "عرب",
       "phone": "09912807001",
       "email": "fardadgoodboy@gmail.com",
-      "passwordHash": "$2b$12$yrkmebKSNfRPIvjEsFoAMe7sv9FZFLPH5Fbkn0m5U3o30aRhAERFq",
+      "passwordHash": "$2b$12$m.mezXK3sCSrdIllVjvl8OVV6HsiMllvYVmy3hjtOKKkqAL7AoCmi",
       "isVerified": true,
-      "friendCode": "CZQLCXEN",
-      "createdAt": 1747938805494
+      "friendCode": "RZDUVYI5",
+      "active": true,
+      "createdAt": 1747939438923
     }
   ]
 }
