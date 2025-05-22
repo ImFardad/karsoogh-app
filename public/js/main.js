@@ -3,6 +3,7 @@ import { renderDashboard } from './dashboard.js';
 import { renderGroups }    from './groups.js';
 import { renderScan }      from './scan.js';
 
+// المان‌های اصلی
 const main           = document.getElementById('main-content');
 const toggleBtn      = document.getElementById('menu-toggle');
 const sidebar        = document.getElementById('sidebar');
@@ -12,44 +13,51 @@ const logoutBtn      = document.getElementById('logout');
 const profileNameEl  = document.getElementById('profile-name');
 const userInitialsEl = document.getElementById('user-initials');
 
-// بارگذاری اطلاعات کاربر
+// ————————— loadUser —————————
+// دریافت اطلاعات لاگین‌شده
 async function loadUser() {
   try {
-    const res = await fetch('/me');
-    if (!res.ok) throw new Error();
+    const res = await fetch('/me');            // endpoint درست برای اطلاعات کاربر
+    if (!res.ok) throw new Error('fetch failed');
     const user = await res.json();
-    profileNameEl.textContent  = `${user.firstName || ''} ${user.lastName || ''}`.trim();
-    userInitialsEl.textContent = `${user.firstName?.[0]||''}${user.lastName?.[0]||''}`.toUpperCase();
-  } catch {
-    profileNameEl.textContent  = 'کاربر';
+    // نوشتن firstName و lastName
+    const fname = user.firstName || '';
+    const lname = user.lastName  || '';
+    profileNameEl.textContent  = `${fname} ${lname}`.trim();
+    // حروف اول برای آوتار
+    userInitialsEl.textContent = (fname[0] || '').toUpperCase() + (lname[0] || '').toUpperCase();
+  } catch (err) {
+    console.error(err);
+    profileNameEl.textContent  = 'کاربر';   // حالت پیش‌فرض
     userInitialsEl.textContent = '';
   }
 }
 
-// باز/بسته کردن سایدبار و اورلی
-function toggleSidebar() {
-  sidebar.classList.toggle('open');
-  overlay.classList.toggle('open');
-  toggleBtn.classList.toggle('active');
+// ————————— Sidebar Toggle & Overlay —————————
+function openSidebar() {
+  sidebar.classList.add('open');
+  overlay.classList.add('open');
+  toggleBtn.classList.add('active');
 }
 
-// بستن سایدبار
 function closeSidebar() {
-  if (!sidebar.classList.contains('open')) return;
   sidebar.classList.remove('open');
   overlay.classList.remove('open');
   toggleBtn.classList.remove('active');
 }
 
-// ایونت‌ها
-toggleBtn.addEventListener('click', toggleSidebar);
+toggleBtn.addEventListener('click', () => {
+  sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+});
+
+// بستن با کلیک روی اورلی
 overlay.addEventListener('click', closeSidebar);
-main.addEventListener('click', (e) => {
-  // اگر کلیک دقیقاً روی main بود (نه داخل سایدبار)، سایدبار ببند
+// بستن با کلیک روی هر نقطهٔ محتوای اصلی (به جز خود سایدبار)
+main.addEventListener('click', e => {
   if (!sidebar.contains(e.target)) closeSidebar();
 });
 
-// رندر بخش‌ها
+// ————————— Section Rendering & Navigation —————————
 const sections = {
   dashboard: renderDashboard(),
   groups:    renderGroups(),
@@ -60,26 +68,28 @@ Object.values(sections).forEach(sec => {
   main.appendChild(sec);
 });
 
-// سویچ بین بخش‌ها
+// فعال‌سازی و هایلایت یک بخش
 function activateSection(key) {
-  Object.values(sections).forEach(sec => sec.classList.remove('active'));
-  navItems.forEach(item => item.classList.remove('bg-gray-700'));
+  Object.values(sections).forEach(s => s.classList.remove('active'));
+  navItems.forEach(i => i.classList.remove('bg-gray-700'));
   sections[key].classList.add('active');
   document
     .querySelector(`#sidebar .nav-item[data-section="${key}"]`)
     .classList.add('bg-gray-700');
   closeSidebar();
 }
+
+// انتساب رویداد کلیک به آیتم‌های منو
 navItems.forEach(item => {
   item.addEventListener('click', () => activateSection(item.dataset.section));
 });
 
-// خروج
-logoutBtn.addEventListener('click', async () => {
-  await fetch('/logout', { method: 'POST' });
-  window.location.href = '/login';
+// ————————— Logout Logic —————————
+// با فراخوانی مستقیم روت بک‌اند که سشن را پاک می‌کند
+logoutBtn.addEventListener('click', () => {
+  window.location.href = '/logout';
 });
 
-// مقداردهی اولیه
+// ————————— Initialization —————————
 loadUser();
 activateSection('dashboard');
