@@ -1,66 +1,102 @@
 <!DOCTYPE html>
 <html lang="fa">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>داشبورد karsoogh handler</title>
-  <link rel="stylesheet" href="css/styles.css" />
-  <style>
-    /* اگر استایل اضافی لازم است اینجا می‌توانید اضافه کنید */
-    body {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      margin: 0;
-      background-color: #f5f5f5;
-      font-family: sans-serif;
-    }
-    .container {
-      background: #fff;
-      padding: 2rem;
-      border-radius: 0.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      max-width: 400px;
-      width: 90%;
-    }
-    h1 {
-      margin-bottom: 1rem;
-      font-size: 1.5rem;
-      color: #333;
-    }
-    p {
-      margin-bottom: 1.5rem;
-      color: #555;
-    }
-    button {
-      background-color: #3b82f6;
-      color: #fff;
-      border: none;
-      padding: 0.75rem 1.5rem;
-      border-radius: 0.375rem;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-    button:hover {
-      background-color: #2563eb;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Karsoogh App</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/styles.css">
 </head>
-<body>
-  <div class="container">
-    <h1>به داشبورد karsoogh handler خوش آمدید!</h1>
-    <p>شما با موفقیت وارد شده‌اید.</p>
-    <button id="logout-btn">خروج</button>
-  </div>
+<body class="bg-primary text-primary min-h-screen overflow-x-hidden">
 
-  <script>
-    document.getElementById('logout-btn').addEventListener('click', async () => {
-      await fetch('/logout', { method: 'GET', credentials: 'same-origin' });
-      window.location.href = '/login';
-    });
-  </script>
+  <!-- Header -->
+  <header class="bg-secondary sticky top-0 z-30 shadow-md">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <!-- Hamburger Menu -->
+        <button id="menu-toggle"
+                class="hamburger flex flex-col justify-center items-center w-8 h-8 rounded-full hover:bg-gray-700 transition focus:outline-none">
+          <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
+          <span class="line block w-6 h-0.5 bg-white mb-1.5 transition"></span>
+          <span class="line block w-6 h-0.5 bg-white transition"></span>
+        </button>
+        <!-- Logo -->
+        <h1 class="text-xl font-bold">
+          <span class="text-accent-1">Karsoogh</span><span class="text-accent-2">App</span>
+        </h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar Navigation -->
+  <aside id="sidebar"
+         class="sidebar fixed top-0 left-0 h-full w-64 bg-secondary shadow-lg transform -translate-x-full transition-transform duration-300 z-50">
+    <div class="p-4 h-full flex flex-col">
+
+      <!-- User Profile -->
+      <div id="user-profile"
+           class="flex items-center space-x-3 mb-8 p-3 rounded-lg bg-gray-800">
+        <div id="user-avatar"
+             class="w-10 h-10 rounded-full bg-gradient-to-r from-accent-1 to-accent-2 flex items-center justify-center">
+          <span id="user-initials" class="font-bold text-sm"></span>
+        </div>
+        <div>
+          <p id="profile-name" class="font-medium text-sm"></p>
+          <p id="profile-role" class="text-xs text-secondary"></p>
+        </div>
+      </div>
+
+      <!-- Navigation Items -->
+      <nav class="flex-1 overflow-y-auto">
+        <ul class="space-y-1">
+          <li data-section="dashboard"
+              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer">
+            <i class="fas fa-tachometer-alt w-5 text-accent-1"></i>
+            <span>داشبورد</span>
+          </li>
+          <li data-section="groups"
+              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer">
+            <i class="fas fa-users w-5 text-accent-2"></i>
+            <span>گروه‌ها</span>
+          </li>
+          <li data-section="scan"
+              class="nav-item flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-700 transition cursor-pointer">
+            <i class="fas fa-qrcode w-5 text-accent-4"></i>
+            <span>اسکن اطلاعات</span>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Logout -->
+      <div class="mt-auto">
+        <button id="logout"
+                class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-red-600 transition">
+          <i class="fas fa-sign-out-alt w-5 text-red-400"></i>
+          <span class="text-red-400">خروج</span>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Overlay -->
+  <div id="overlay"
+       class="overlay fixed inset-0 bg-black bg-opacity-50 opacity-0 invisible transition-opacity duration-300 z-40"></div>
+
+  <!-- Main Content -->
+  <main id="main-content"
+        class="container mx-auto px-4 py-6 pt-16 transition-all duration-300">
+    <!-- اینجا JS بخش‌ها را بارگذاری می‌کند -->
+  </main>
+
+  <!-- Scripts -->
+  <script src="js/menu.js"></script>
+  <script type="module" src="js/dashboard.js"></script>
+  <script type="module" src="js/groups.js"></script>
+  <script type="module" src="js/scan.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
