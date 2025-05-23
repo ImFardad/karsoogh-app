@@ -1,7 +1,7 @@
 // controllers/authController.js
-const bcrypt = require('bcrypt');
-const db = require('../config/db');
-const User = require('../models/User');
+const bcrypt                  = require('bcrypt');
+const db                      = require('../config/db');
+const UserModel               = require('../models/User');
 const { sendVerificationEmail } = require('../config/email');
 
 // STEP 1: فقط بررسی یکتا بودن و ارسال کد
@@ -40,7 +40,6 @@ exports.signupStep1 = async (req, res) => {
 
     await sendVerificationEmail(email, code);
     return res.json({ status: 'code-sent' });
-
   } catch (err) {
     console.error('signupStep1 error:', err);
     return res.status(500).json({ error: 'Internal server error.' });
@@ -100,7 +99,6 @@ exports.signupStep2 = async (req, res) => {
       phone,
       password: passPlain
     });
-
   } catch (err) {
     console.error('signupStep2 error:', err);
     return res.status(500).json({ error: 'Internal server error.' });
@@ -145,7 +143,6 @@ exports.login = async (req, res) => {
     });
 
     return res.json({ status: 'ok' });
-
   } catch (err) {
     console.error('login error:', err);
     return res.status(500).json({ error: 'Internal server error.' });
@@ -169,7 +166,6 @@ exports.me = async (req, res) => {
     // پاسخ JSON شامل اطلاعات عمومی
     const { id, firstName, lastName, phone, email, friendCode } = user;
     return res.json({ user: { id, firstName, lastName, phone, email, friendCode } });
-
   } catch (err) {
     console.error('me error:', err);
     return res.status(500).json({ error: 'Internal server error.' });

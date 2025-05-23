@@ -1,5 +1,5 @@
 {
-  "name": "study-competition",
+  "name": "karsoogh-app",
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
@@ -11,6 +11,7 @@
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "lowdb": "^5.1.0",
+    "nanoid": "^5.1.5",
     "node-cron": "^4.0.6",
     "nodemailer": "^6.10.1",
     "sequelize": "^6.37.7",

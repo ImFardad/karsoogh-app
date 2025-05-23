@@ -396,9 +396,8 @@ a:hover {
   .sidebar {
     transform: translateX(0);
   }
-  .overlay {
-    display: none;
-  }
+  /* حذف نمایش: none از اورلی در دسکتاپ */
+  /* overlay همیشه می‌تواند نمایش یابد */
   main, .content {
     margin-left: 16rem; /* width of sidebar */
   }
